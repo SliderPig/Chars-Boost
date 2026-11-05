@@ -97,3 +97,12 @@ tps
 charboost status
 charboost mobs
 charboost level auto
+## power from the hand: a plain item, then Mjolnir (does it even stay in an unworthy hand?)
+item replace entity Bot1 weapon.mainhand with arrzenhanced:axe_rifle
+wait 1
+execute if entity @a[name=Bot1,palladium.power=arrzenhanced:axe_rifle]
+item replace entity Bot1 weapon.mainhand with powerborne:mjolnir
+wait 1
+execute if entity @a[name=Bot1,palladium.power=powerborne:mjolnir_holder]
+data get entity Bot1 SelectedItem.id
+wait 2
