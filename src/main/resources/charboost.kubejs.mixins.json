@@ -1,0 +1,14 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.example.charboost.mixin.kubejs",
+  "plugin": "com.example.charboost.mixin.MixinGate",
+  "refmap": "charboost.refmap.json",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "EventHandlerContainerMixin",
+    "EventHandlerMixin",
+    "KubeJSPlayerEventHandlerMixin"
+  ],
+  "injectors": { "defaultRequire": 0 }
+}

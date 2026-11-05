@@ -1,0 +1,83 @@
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    // makes the "refmap" so mixins into Minecraft's own code find the right names on a real server
+    id 'org.spongepowered.mixin' version '0.7.+'
+}
+
+version = '1.0'
+group = 'com.example.charboost'
+
+base {
+    archivesName = 'charboost'
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+}
+
+mixin {
+    add sourceSets.main, 'charboost.refmap.json'
+    config 'charboost.mixins.json'
+    config 'charboost.palladium.mixins.json'
+    config 'charboost.kubejs.mixins.json'
+}
+
+repositories {
+    // Compile only. See the README for where these jars come from. None of them are required mods.
+    flatDir { dirs 'libs' }
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.3.0'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    compileOnly fg.deobf('local:palladium:4.5.9+1.20.1-forge')
+    compileOnly fg.deobf('local:palladiumcore-forge:1.0.1+1.20.1-forge')
+    compileOnly fg.deobf('local:kubejs-forge:2001.6.5-build.26')
+    compileOnly fg.deobf('local:rhino-forge:2001.2.3-build.10')
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+// gradlew runGameTestServer -Psmoke: real headless game, runs src/smoke. Never part of the jar.
+if (project.hasProperty('smoke')) {
+    sourceSets.main.java.srcDir 'src/smoke/java'
+    minecraft.runs {
+        gameTestServer {
+            workingDirectory project.file('run-smoke')
+            property 'forge.enabledGameTestNamespaces', 'charboost'
+            property 'forge.logging.console.level', 'info'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            mods {
+                charboost {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+tasks.named('jar', Jar) {
+    manifest {
+        attributes([
+            'Specification-Title'   : 'charboost',
+            'Specification-Version' : '1',
+            'Implementation-Title'  : project.name,
+            'Implementation-Version': project.jar.archiveVersion,
+            'MixinConfigs'          : 'charboost.mixins.json,charboost.palladium.mixins.json,charboost.kubejs.mixins.json'
+        ])
+    }
+}

@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+
+[[mods]]
+modId="charboost"
+version="${file.jarVersion}"
+displayName="{C} Char's Boost"
+authors="Char"
+# Server-side: players don't need it installed to join.
+displayTest="IGNORE_ALL_VERSION"
+description='''
+Makes the server's main thread do less. Faster command selectors, no needless Palladium work, saves written on another thread, and under heavy load far mobs, idle hoppers and AFK players' scripts run less often. A healthy server plays exactly like normal.
+'''
+
+[[dependencies.charboost]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.charboost]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"

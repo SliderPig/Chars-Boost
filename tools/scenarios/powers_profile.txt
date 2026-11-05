@@ -1,0 +1,34 @@
+## bots with powers, 300 mobs, then measure
+gamerule doDaylightCycle false
+time set day
+player Bot1 spawn at 0 -60 0
+wait 3
+player Bot2 spawn at 40 -60 0
+wait 3
+player Bot3 spawn at 0 -60 40
+wait 5
+list
+superpower add fsang:kryptonian Bot1
+superpower add eop:beyonder Bot1
+superpower add arrzenhanced:speedforce Bot1
+superpower add heroes:pyrokinesis Bot1
+superpower add powerborne:god_of_thunder Bot1
+superpower add fsang:hulk Bot2
+superpower add fsang_secondary:symbiote Bot2
+superpower add eop:wyvern Bot2
+superpower add arrzenhanced:umbrakinesis Bot2
+superpower add gabeupheroes:daxamite Bot2
+superpower add fsang:reality_warping Bot3
+superpower add eop:phoenix Bot3
+superpower add arrzenhanced:infinity_gauntlet Bot3
+superpower add powerborne:spiderman Bot3
+superpower add heroes:stockpile Bot3
+@mobs300.txt
+wait 30
+tps
+wait 20
+tps
+sample 40 stacks-a.txt
+tps
+wait 20
+tps
