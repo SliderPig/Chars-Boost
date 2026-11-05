@@ -1,0 +1,15 @@
+## only Char's Boost: it starts clean, hooks go in, commands answer
+charboost status
+wait 2
+charboost off mobAi
+charboost on mobAi
+charboost level 2
+charboost mobs
+charboost level auto
+charboost off
+charboost on
+charboost scripts
+charboost functions
+tps
+save-all
+wait 3

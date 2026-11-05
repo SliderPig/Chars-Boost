@@ -50,7 +50,7 @@ network-compression-threshold=256
 difficulty=hard
 """
 
-DEFAULT_SHOW = r"\[CHARBOOST\]|\[CharBoost\] \d+ hooks|Overall|Mixin apply failed|Done \(|Caused by|FATAL|Exception in|ms/t |ms a tick|hooks in|mobs loaded|Left alone|has the following|No entity was found|Unknown or incomplete|Mixin.*(error|fail)"
+DEFAULT_SHOW = r"\[CHARBOOST\]|\[CharBoost\] \d+ hooks|Overall|Mixin apply failed|Done \(|Caused by|FATAL|Exception in|ms/t |ms a tick|hooks in|mobs loaded|Left alone|Powers mobs hold|Test passed|Test failed|enabled data packs|now runs in Java|has changed, leaving|has the following|No entity was found|Unknown or incomplete|Mixin.*(error|fail)"
 
 
 BUCKETS = [
@@ -147,11 +147,11 @@ def main():
                 continue
             src = name if os.path.isabs(name) else os.path.join(PROFILE, name)
             shutil.copy(src, mods)
-    for o in a.overlay:
-        shutil.copytree(o, run, dirs_exist_ok=True)
     if not a.keep_world:
         for w in ("world", "world_nether", "world_the_end"):
             shutil.rmtree(os.path.join(run, w), ignore_errors=True)
+    for o in a.overlay:
+        shutil.copytree(o, run, dirs_exist_ok=True)
 
     cmd = [JAVA, "-Xmx" + a.xmx, "-Xms1G", "-XX:+UseG1GC", "-jar", JAR, "nogui"]
     print("starting:", " ".join(cmd), flush=True)

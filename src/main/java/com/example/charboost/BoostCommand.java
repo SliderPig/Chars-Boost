@@ -4,6 +4,7 @@ import com.example.charboost.hook.AsyncSaves;
 import com.example.charboost.hook.Census;
 import com.example.charboost.hook.Functions;
 import com.example.charboost.hook.MobAi;
+import com.example.charboost.hook.PowersHook;
 import com.example.charboost.hook.Scripts;
 import com.example.charboost.mixin.MixinGate;
 import com.mojang.brigadier.CommandDispatcher;
@@ -205,6 +206,7 @@ public final class BoostCommand {
         }
         say(c, text(total + " mobs loaded. Thinking every N ticks: " + intervals, PINK));
         say(c, text("Left alone because: " + reasons, PLUM));
+        say(c, text("Powers mobs hold: " + PowersHook.powersOnMobs(c.getSource().getServer()), PLUM));
         return 1;
     }
 

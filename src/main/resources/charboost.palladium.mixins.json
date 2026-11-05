@@ -13,7 +13,9 @@
     "PowerHandlerMixin",
     "PowerUtilMixin",
     "PropertyManagerMixin",
-    "RegisterPropertyEventMixin"
+    "RegisterPropertyEventMixin",
+    "ScriptableAbilityMixin",
+    "ScriptableConditionMixin"
   ],
   "injectors": { "defaultRequire": 0 }
 }

@@ -1,0 +1,99 @@
+## Do the power mods still behave with the mod in, at full pressure?
+datapack disable "file/power_compat"
+wait 12
+datapack enable "file/power_compat" last
+wait 15
+datapack list enabled
+gamerule doMobSpawning false
+gamerule doDaylightCycle false
+time set day
+player Bot1 spawn at 0 -60 0
+wait 4
+charboost level 3
+wait 3
+## power from armour appears and goes away (powerProviders skips the search when nothing changed)
+execute if entity @a[name=Bot1,palladium.power=fsang:batman_absolute]
+expect Test failed
+item replace entity Bot1 armor.chest with fsang:batman_absolute_chestplate
+wait 1
+execute if entity @a[name=Bot1,palladium.power=fsang:batman_absolute]
+expect Test passed
+item replace entity Bot1 armor.chest with minecraft:air
+wait 1
+execute if entity @a[name=Bot1,palladium.power=fsang:batman_absolute]
+expect Test failed
+## power from the hand
+item replace entity Bot1 weapon.mainhand with powerborne:mjolnir
+wait 1
+execute if entity @a[name=Bot1,palladium.power=powerborne:mjolnir_holder]
+expect Test passed
+item replace entity Bot1 weapon.mainhand with minecraft:air
+wait 1
+execute if entity @a[name=Bot1,palladium.power=powerborne:mjolnir_holder]
+expect Test failed
+## superpower command on a player and a mob
+superpower add eop:wyvern Bot1
+wait 1
+execute if entity @a[name=Bot1,palladium.power=eop:wyvern]
+expect Test passed
+superpower remove eop:wyvern Bot1
+wait 1
+execute if entity @a[name=Bot1,palladium.power=eop:wyvern]
+expect Test failed
+summon minecraft:cow 5 -60 5 {PersistenceRequired:1b,Tags:["cb_cow"]}
+wait 1
+superpower add fsang:hulk @e[tag=cb_cow]
+wait 8
+execute if entity @e[tag=cb_cow,palladium.power=fsang:hulk]
+expect Test passed
+## armour on a mob gets noticed too, within a few seconds at most
+item replace entity @e[tag=cb_cow,limit=1] armor.chest with fsang:batman_absolute_chestplate
+wait 7
+execute if entity @e[tag=cb_cow,palladium.power=fsang:batman_absolute]
+expect Test passed
+item replace entity @e[tag=cb_cow,limit=1] armor.chest with minecraft:air
+wait 1
+execute if entity @e[tag=cb_cow,palladium.power=fsang:batman_absolute]
+expect Test failed
+## Echoes' tag properties, now in Java, on a player and on a mob
+tag Bot1 add EOP.inWater
+wait 1
+data get entity Bot1 Palladium.Properties."EOP.inWater"
+expect following entity data: 1b
+tag Bot1 remove EOP.inWater
+wait 1
+data get entity Bot1 Palladium.Properties."EOP.inWater"
+expect following entity data: 0b
+tag @e[tag=cb_cow,limit=1] add Phero.Target
+wait 1
+data get entity @e[tag=cb_cow,limit=1] Palladium.Properties."EOP.Tracked"
+expect following entity data: 1b
+tag @e[tag=cb_cow,limit=1] remove Phero.Target
+wait 1
+data get entity @e[tag=cb_cow,limit=1] Palladium.Properties."EOP.Tracked"
+expect following entity data: 0b
+## new entities still get their properties from the copied list (script-registered property on a player and on a projectile type)
+data get entity Bot1 Palladium.Properties.fsang_geo_sense
+expect following entity data: 0
+player Bot2 spawn at 10 -60 0
+wait 3
+data get entity Bot2 Palladium.Properties.fsang_geo_sense
+expect following entity data: 0
+player Bot2 kill
+wait 1
+## a tag selector finds what it should straight after tagging, and stops after
+tag @e[tag=cb_cow,limit=1] add cb_marker
+execute if entity @e[tag=cb_marker]
+expect Test passed
+execute if entity @e[type=minecraft:cow,tag=cb_marker]
+expect Test passed
+tag @e[tag=cb_marker] remove cb_marker
+execute if entity @e[tag=cb_marker]
+expect Test failed
+## datapack and KubeJS reload with the mod in
+reload
+wait 15
+charboost status
+charboost mobs
+charboost level auto
+list

@@ -1,4 +1,9 @@
 ## bots with powers, 300 mobs, then measure
+datapack disable "file/power_compat"
+wait 12
+datapack enable "file/power_compat" last
+wait 15
+datapack list enabled
 gamerule doDaylightCycle false
 time set day
 player Bot1 spawn at 0 -60 0

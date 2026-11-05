@@ -33,3 +33,14 @@ charboost scripts
 charboost level auto
 save-all
 wait 3
+## a player who leaves and comes straight back must read what was just saved
+give Bot minecraft:diamond 7
+wait 1
+player Bot kill
+player Bot spawn at 0 -60 0
+wait 3
+data get entity Bot Inventory
+expect diamond
+save-all flush
+wait 3
+charboost status

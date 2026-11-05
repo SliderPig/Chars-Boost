@@ -1,4 +1,9 @@
 ## bots with powers, 300 mobs: master switch off, then on, then full pressure
+datapack disable "file/power_compat"
+wait 12
+datapack enable "file/power_compat" last
+wait 15
+datapack list enabled
 gamerule doMobSpawning false
 gamerule doDaylightCycle false
 time set day
@@ -54,7 +59,7 @@ tps
 wait 6
 tps
 charboost status
-charboost scripts 30
+charboost scripts 45
 charboost functions 12
 sample 60 stacks-on.txt
 charboost level 1

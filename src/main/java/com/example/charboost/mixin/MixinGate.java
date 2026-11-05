@@ -99,7 +99,8 @@ public class MixinGate implements IMixinConfigPlugin {
         if (name.startsWith("palladium.") && (mods == null || mods.getModFileById("palladium") == null)) {
             return false;
         }
-        if ((name.startsWith("kubejs.") || name.equals("palladium.KubeJSPluginMixin") || name.equals("palladium.RegisterPropertyEventMixin"))
+        if ((name.startsWith("kubejs.") || name.equals("palladium.KubeJSPluginMixin") || name.equals("palladium.RegisterPropertyEventMixin")
+                || name.startsWith("palladium.Scriptable"))
                 && (mods == null || mods.getModFileById("kubejs") == null)) {
             return false;
         }
