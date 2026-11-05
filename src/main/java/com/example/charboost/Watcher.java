@@ -53,7 +53,7 @@ public final class Watcher {
             level = 0;
         }
         if (level != Boost.level) {
-            CharBoost.LOG.debug("[CharBoost] pressure {} at {} ms", level, String.format("%.1f", mspt));
+            CharBoost.LOG.info("[CharBoost] pressure {} at {} ms a tick", level, String.format("%.1f", mspt));
         }
         Boost.level = level;
 

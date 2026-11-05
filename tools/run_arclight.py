@@ -217,7 +217,7 @@ def main():
 
     atexit.register(lambda: proc.poll() is None and stop_server())
 
-    ok = wait_for("Done (", a.limit - 60)
+    ok = wait_for("Done (", a.limit - 25)
     if not ok:
         print("SERVER DID NOT FINISH STARTING", flush=True)
     else:
