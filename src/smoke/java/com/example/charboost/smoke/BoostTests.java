@@ -108,8 +108,9 @@ public class BoostTests {
     }
 
     private static void attackCheck(GameTestHelper h) {
-        Zombie zombie = h.spawn(EntityType.ZOMBIE, new BlockPos(1, 2, 1));
-        Cow cow = h.spawn(EntityType.COW, new BlockPos(3, 2, 1));
+        // On the ground: a mob with no AI doesn't fall.
+        Zombie zombie = h.spawn(EntityType.ZOMBIE, new BlockPos(1, 0, 1));
+        Cow cow = h.spawn(EntityType.COW, new BlockPos(3, 0, 1));
         cow.setNoAi(true);
         zombie.setTarget(cow);
         h.succeedWhen(() -> h.assertTrue(cow.getHealth() < cow.getMaxHealth(), "the zombie hasn't hit the cow: target " + zombie.getTarget()
@@ -117,7 +118,7 @@ public class BoostTests {
                 + " alive " + zombie.isAlive() + " on ground " + zombie.onGround() + " path " + zombie.getNavigation().getPath()));
     }
 
-    @GameTest(template = "empty", timeoutTicks = 300)
+    @GameTest(template = "empty", timeoutTicks = 300, batch = "attack")
     public static void throttledMobWithATargetStillAttacks(GameTestHelper h) {
         fullPressure();
         attackCheck(h);
@@ -309,15 +310,17 @@ public class BoostTests {
         BlockPos at = h.absolutePos(new BlockPos(2, 2, 2));
         ItemEntity stone = new ItemEntity(h.getLevel(), at.getX(), at.getY(), at.getZ(), new ItemStack(Items.STONE));
         stone.setNeverPickUp();
-        h.getLevel().addFreshEntity(stone);
-        h.assertTrue(select(h, "@e[type=item,nbt={Item:{id:\"minecraft:stone\"}}]").contains(stone), "stone not found");
-        h.assertFalse(select(h, "@e[type=item,nbt={Item:{id:\"minecraft:stone\"}}]").isEmpty(), "stone not found");
-        h.assertFalse(select(h, "@e[type=item,nbt={Item:{id:\"minecraft:elytra\"}}]").contains(stone), "found the wrong item");
-        h.assertTrue(select(h, "@e[type=item,nbt={Item:{id:\"stone\"}}]").isEmpty(), "an id without its namespace never matched before either");
-        h.assertTrue(select(h, "@e[type=item,nbt={Item:{id:\"charboost:no_such_item\"}}]").isEmpty(), "found an item that doesn't exist");
-        h.assertTrue(select(h, "@e[type=item,nbt=!{Item:{id:\"minecraft:elytra\"}}]").contains(stone), "not-elytra should find stone");
-        stone.discard();
-        h.succeed();
+        // Right at the start of a batch the area may not be ready to hold entities yet.
+        h.runAfterDelay(10, () -> {
+            h.getLevel().addFreshEntity(stone);
+            h.assertTrue(select(h, "@e[type=item,nbt={Item:{id:\"minecraft:stone\"}}]").contains(stone), "stone not found");
+            h.assertFalse(select(h, "@e[type=item,nbt={Item:{id:\"minecraft:elytra\"}}]").contains(stone), "found the wrong item");
+            h.assertTrue(select(h, "@e[type=item,nbt={Item:{id:\"stone\"}}]").isEmpty(), "an id without its namespace never matched before either");
+            h.assertTrue(select(h, "@e[type=item,nbt={Item:{id:\"charboost:no_such_item\"}}]").isEmpty(), "found an item that doesn't exist");
+            h.assertTrue(select(h, "@e[type=item,nbt=!{Item:{id:\"minecraft:elytra\"}}]").contains(stone), "not-elytra should find stone");
+            stone.discard();
+            h.succeed();
+        });
     }
 
     private static final class TestData extends SavedData {
