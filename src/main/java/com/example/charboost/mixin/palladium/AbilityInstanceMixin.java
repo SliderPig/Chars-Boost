@@ -9,15 +9,15 @@ import net.threetag.palladium.condition.ConditionSerializer;
 import net.threetag.palladium.power.ability.AbilityInstance;
 import net.threetag.palladium.util.context.DataContext;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Each ability built a new little map of "who am I" up to twice a tick just to check its conditions. A player with a
- * few big powers has hundreds of abilities. Each ability now keeps one and only updates what can change.
+ * Each ability built a new little map of "who am I" up to twice a tick just to check its conditions, and a player with a
+ * few big powers has hundreds of abilities. Each ability now keeps one and only remakes it if the entity or dimension changed.
  * Pressing a power key also counts as not being AFK.
  */
 @Mixin(value = AbilityInstance.class, remap = false)
@@ -27,27 +27,27 @@ public abstract class AbilityInstanceMixin {
     @Unique
     private Object charboost$contextLevel;
 
-    /**
-     * @author Char
-     * @reason Same check, without building a new context every time.
-     */
-    @Overwrite
-    private boolean evaluateConditions(List<Condition> conditions, LivingEntity entity) {
-        if (conditions.isEmpty()) {
-            return true;
+    @Inject(method = "evaluateConditions", at = @At("HEAD"), cancellable = true)
+    private void charboost$evaluate(List<Condition> conditions, LivingEntity entity, CallbackInfoReturnable<Boolean> cir) {
+        Opt.ABILITIES.seen++;
+        if (!Opt.ABILITIES.live()) {
+            return;
         }
-        Opt.ABILITY_CONTEXT.seen++;
+        if (conditions.isEmpty()) {
+            cir.setReturnValue(true);
+            return;
+        }
         DataContext context = charboost$context;
         Object level = entity.level();
-        if (context == null || !Opt.ABILITY_CONTEXT.live() || charboost$contextLevel != level || context.getEntity() != entity) {
+        if (context == null || charboost$contextLevel != level || context.getEntity() != entity) {
             context = DataContext.forAbility(entity, (AbilityInstance) (Object) this);
             charboost$context = context;
             charboost$contextLevel = level;
         } else {
-            Opt.ABILITY_CONTEXT.skips++;
-            Opt.ABILITY_CONTEXT.savedNs += 150;
+            Opt.ABILITIES.skips++;
+            Opt.ABILITIES.savedNs += 150;
         }
-        return ConditionSerializer.checkConditions(conditions, context);
+        cir.setReturnValue(ConditionSerializer.checkConditions(conditions, context));
     }
 
     @Inject(method = "keyPressed", at = @At("HEAD"))

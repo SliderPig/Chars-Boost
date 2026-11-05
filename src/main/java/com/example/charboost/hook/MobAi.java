@@ -80,36 +80,47 @@ public final class MobAi {
     }
 
     private static boolean exempt(Mob mob) {
-        if (mob.isVehicle() || mob.isPassenger() || mob.isLeashed() || mob.hasCustomName()) {
-            return true;
+        return exemptReason(mob) != null;
+    }
+
+    /** Why this mob is left alone, or null if it isn't. */
+    public static String exemptReason(Mob mob) {
+        if (mob.isVehicle() || mob.isPassenger() || mob.isLeashed()) {
+            return "riding or leashed";
         }
-        if (mob.isInWater() || mob.isInLava() || mob.getLastHurtByMob() != null) {
-            return true;
+        if (mob.hasCustomName()) {
+            return "named";
+        }
+        if (mob.isInWater() || mob.isInLava()) {
+            return "in water or lava";
+        }
+        if (mob.getLastHurtByMob() != null) {
+            return "recently hurt";
         }
         if (mob.getMaxHealth() >= Cfg.bossHealth || exemptType(mob.getType())) {
-            return true;
+            return "boss or listed";
         }
         if (mob instanceof TamableAnimal tame && tame.isTame() || mob instanceof AbstractHorse horse && horse.isTamed()) {
-            return true;
+            return "tamed";
         }
         if (mob instanceof Raider raider && (raider.hasActiveRaid() || raider.isPatrolLeader())) {
-            return true;
+            return "raid";
         }
         if (mob instanceof Villager villager && villager.isTrading()) {
-            return true;
+            return "trading";
         }
         if (mob.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET)) {
-            return true;
+            return "has a target";
         }
         Set<String> tags = mob.getTags();
         if (!tags.isEmpty()) {
             for (String tag : Cfg.exemptTags) {
                 if (tags.contains(tag)) {
-                    return true;
+                    return "tag " + tag;
                 }
             }
         }
-        return PowersHook.holdsPowers(mob);
+        return PowersHook.holdsPowers(mob) ? "holds a power" : null;
     }
 
     private static boolean exemptType(EntityType<?> type) {

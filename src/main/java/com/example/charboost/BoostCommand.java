@@ -3,6 +3,7 @@ package com.example.charboost;
 import com.example.charboost.hook.AsyncSaves;
 import com.example.charboost.hook.Census;
 import com.example.charboost.hook.Functions;
+import com.example.charboost.hook.MobAi;
 import com.example.charboost.hook.Scripts;
 import com.example.charboost.mixin.MixinGate;
 import com.mojang.brigadier.CommandDispatcher;
@@ -12,11 +13,16 @@ import com.mojang.brigadier.context.CommandContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
 
 /** /charboost, ops only. */
 public final class BoostCommand {
@@ -43,6 +49,7 @@ public final class BoostCommand {
                 .then(Commands.literal("functions").executes(c -> functions(c, 12))
                         .then(Commands.literal("reset").executes(BoostCommand::resetFunctions))
                         .then(Commands.argument("count", IntegerArgumentType.integer(1, 200)).executes(c -> functions(c, IntegerArgumentType.getInteger(c, "count")))))
+                .then(Commands.literal("mobs").executes(BoostCommand::mobs))
                 .then(Commands.literal("reset").executes(BoostCommand::resetAll)));
     }
 
@@ -177,6 +184,27 @@ public final class BoostCommand {
             say(c, text(String.format(Locale.ROOT, "%6.3f ms/t %6.0f us/call %s %s", e.cost.total() / 1e6 / ticks, e.cost.average() / 1e3,
                     e.slow ? "S" : " ", e.name), PLUM));
         }
+        return 1;
+    }
+
+    private static int mobs(CommandContext<CommandSourceStack> c) {
+        Map<Integer, Integer> intervals = new TreeMap<>();
+        Map<String, Integer> reasons = new TreeMap<>();
+        int total = 0;
+        for (ServerLevel level : c.getSource().getServer().getAllLevels()) {
+            for (Entity entity : level.getAllEntities()) {
+                if (entity instanceof Mob mob) {
+                    total++;
+                    intervals.merge(MobAi.interval(mob), 1, Integer::sum);
+                    String why = MobAi.exemptReason(mob);
+                    if (why != null) {
+                        reasons.merge(why, 1, Integer::sum);
+                    }
+                }
+            }
+        }
+        say(c, text(total + " mobs loaded. Thinking every N ticks: " + intervals, PINK));
+        say(c, text("Left alone because: " + reasons, PLUM));
         return 1;
     }
 

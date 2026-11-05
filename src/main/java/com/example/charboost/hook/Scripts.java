@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 /** Times every KubeJS event handler by script and line, which spark can't do, and runs slow-listed tick ones less often. */
 public final class Scripts {
@@ -24,6 +25,9 @@ public final class Scripts {
         public boolean tickEvent;
         public boolean slow;
         public long skips;
+        /** Java that does the same job, if this is one of the known worst scripts. */
+        public Consumer<Object> replacement;
+        public long replacementSaves;
 
         Entry(String name) {
             this.name = name;
@@ -39,6 +43,10 @@ public final class Scripts {
         return ALL.computeIfAbsent(name, n -> {
             Entry e = new Entry(n);
             e.slow = listed(n);
+            if (PowersHook.hasPalladium()) {
+                e.replacement = NativeScripts.find(n);
+                e.replacementSaves = NativeScripts.estimate(n);
+            }
             return e;
         });
     }
@@ -63,6 +71,17 @@ public final class Scripts {
         entry.skips++;
         Opt.SLOW_SCRIPTS.skips++;
         Opt.SLOW_SCRIPTS.savedNs += (long) entry.cost.average();
+        return true;
+    }
+
+    /** Runs the script's handler or its Java replacement. */
+    public static boolean useReplacement(Entry entry) {
+        if (entry.replacement == null || !Opt.NATIVE_SCRIPTS.live()) {
+            return false;
+        }
+        Opt.NATIVE_SCRIPTS.seen++;
+        Opt.NATIVE_SCRIPTS.skips++;
+        Opt.NATIVE_SCRIPTS.savedNs += entry.replacementSaves;
         return true;
     }
 

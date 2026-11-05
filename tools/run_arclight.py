@@ -50,7 +50,7 @@ network-compression-threshold=256
 difficulty=hard
 """
 
-DEFAULT_SHOW = r"\[CHARBOOST\]|\[CharBoost\] \d+ hooks|Overall|Mixin apply failed|Done \(|Caused by|FATAL|Exception in|ms/t |ms a tick|hooks in|has the following|No entity was found|Unknown or incomplete|Mixin.*(error|fail)"
+DEFAULT_SHOW = r"\[CHARBOOST\]|\[CharBoost\] \d+ hooks|Overall|Mixin apply failed|Done \(|Caused by|FATAL|Exception in|ms/t |ms a tick|hooks in|mobs loaded|Left alone|has the following|No entity was found|Unknown or incomplete|Mixin.*(error|fail)"
 
 
 BUCKETS = [

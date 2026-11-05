@@ -24,30 +24,55 @@ superpower add arrzenhanced:infinity_gauntlet Bot3
 superpower add powerborne:spiderman Bot3
 superpower add heroes:stockpile Bot3
 @mobs300.txt
-wait 30
+charboost off afkPlayers
+wait 70
+## warmed up. Same world, switching the mod on and off (bots count as active players, afkPlayers is off)
 charboost level 0
 charboost off
-wait 25
-## master switch off
+wait 12
+## OFF
 tps
-wait 10
+wait 6
+tps
+charboost on
+wait 12
+## ON pressure 0
+tps
+wait 6
+tps
+charboost off
+wait 12
+## OFF again
+tps
+wait 6
 tps
 charboost on
 charboost reset
-wait 25
-## always-on parts only, pressure 0
+wait 12
+## ON pressure 0 again
 tps
-wait 10
+wait 6
 tps
 charboost status
-charboost scripts 40
-charboost functions 20
+charboost scripts 30
+charboost functions 12
+sample 60 stacks-on.txt
+charboost level 1
+wait 12
+## ON pressure 1
+tps
+wait 6
+tps
 charboost level 3
-charboost reset
-wait 25
-## full pressure
+wait 12
+## ON pressure 3
 tps
-wait 10
+wait 6
+tps
+charboost on afkPlayers
+wait 12
+## ON pressure 3, bots count as AFK
 tps
 charboost status
+charboost mobs
 charboost level auto

@@ -49,8 +49,9 @@ public class MixinGate implements IMixinConfigPlugin {
         put("palladium.PropertyManagerMixin", "palladiumProperties");
         put("palladium.RegisterPropertyEventMixin", "palladiumProperties");
         put("palladium.KubeJSPluginMixin", "palladiumProperties");
-        put("palladium.AbilityInstanceMixin", "abilityContext", "afkPlayers");
-        put("palladium.DefaultPowerHolderMixin", "afkPlayers");
+        put("palladium.AbilityInstanceMixin", "palladiumAbilities", "afkPlayers");
+        put("palladium.AbilityUtilMixin", "palladiumAbilities");
+        put("palladium.DefaultPowerHolderMixin", "palladiumAbilities", "afkPlayers");
         put("kubejs.KubeJSPlayerEventHandlerMixin", "afkPlayers");
     }
 

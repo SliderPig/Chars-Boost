@@ -71,7 +71,11 @@ public abstract class EventHandlerContainerMixin implements ScriptEntryHolder {
             if (!Scripts.skip(entry)) {
                 long start = System.nanoTime();
                 try {
-                    itr.handler.onEvent(event);
+                    if (Scripts.useReplacement(entry)) {
+                        entry.replacement.accept(event);
+                    } else {
+                        itr.handler.onEvent(event);
+                    }
                 } catch (EventExit exit) {
                     throw exit;
                 } catch (Throwable thrown) {

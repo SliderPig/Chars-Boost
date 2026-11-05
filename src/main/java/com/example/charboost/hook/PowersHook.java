@@ -13,6 +13,10 @@ public final class PowersHook {
     private PowersHook() {
     }
 
+    public static boolean hasPalladium() {
+        return HAS_PALLADIUM;
+    }
+
     public static boolean holdsPowers(LivingEntity entity) {
         return HAS_PALLADIUM && Inner.holds(entity);
     }
