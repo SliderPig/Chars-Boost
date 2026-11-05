@@ -64,6 +64,27 @@ class SelectorTagsTest {
     }
 
     @Test
+    void readsTheItemADroppedItemSelectorWants() {
+        assertEquals("fsang:stormbreaker", SelectorTags.requiredItem("@e[type=item,nbt={Item:{id:\"fsang:stormbreaker\"}}]"));
+        assertEquals("minecraft:stone", SelectorTags.requiredItem("@e[type=minecraft:item,nbt={Item:{id:\"minecraft:stone\",Count:1b}}]"));
+        assertEquals("a:b", SelectorTags.requiredItem("@e[nbt={Item:{id:\"a:b\"}},type=item,limit=1]"));
+    }
+
+    @Test
+    void leavesOtherNbtSelectorsAlone() {
+        // Not narrowed to dropped items
+        assertEquals(null, SelectorTags.requiredItem("@e[nbt={Item:{id:\"a:b\"}}]"));
+        assertEquals(null, SelectorTags.requiredItem("@e[type=zombie,nbt={Item:{id:\"a:b\"}}]"));
+        // "must not be"
+        assertEquals(null, SelectorTags.requiredItem("@e[type=item,nbt=!{Item:{id:\"a:b\"}}]"));
+        // Something else first, or nothing about the id
+        assertEquals(null, SelectorTags.requiredItem("@e[type=item,nbt={Item:{Count:1b,id:\"a:b\"}}]"));
+        assertEquals(null, SelectorTags.requiredItem("@e[type=item,nbt={Age:5s}]"));
+        assertEquals(null, SelectorTags.requiredItem("@e[type=item]"));
+        assertEquals(null, SelectorTags.requiredItem("@e"));
+    }
+
+    @Test
     void customSelectorLettersAreLeftAlone() {
         check("@q[tag=x]");
     }

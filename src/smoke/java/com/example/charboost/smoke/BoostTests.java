@@ -24,7 +24,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.Pig;
@@ -282,6 +281,22 @@ public class BoostTests {
         });
     }
 
+    @GameTest(template = "empty", timeoutTicks = 100)
+    public static void droppedItemSelectorsFindTheRightItem(GameTestHelper h) {
+        BlockPos at = h.absolutePos(new BlockPos(2, 2, 2));
+        ItemEntity stone = new ItemEntity(h.getLevel(), at.getX(), at.getY(), at.getZ(), new ItemStack(Items.STONE));
+        stone.setNeverPickUp();
+        h.getLevel().addFreshEntity(stone);
+        h.assertTrue(select(h, "@e[type=item,nbt={Item:{id:\"minecraft:stone\"}}]").contains(stone), "stone not found");
+        h.assertFalse(select(h, "@e[type=item,nbt={Item:{id:\"minecraft:stone\"}}]").isEmpty(), "stone not found");
+        h.assertFalse(select(h, "@e[type=item,nbt={Item:{id:\"minecraft:elytra\"}}]").contains(stone), "found the wrong item");
+        h.assertTrue(select(h, "@e[type=item,nbt={Item:{id:\"stone\"}}]").isEmpty(), "an id without its namespace never matched before either");
+        h.assertTrue(select(h, "@e[type=item,nbt={Item:{id:\"charboost:no_such_item\"}}]").isEmpty(), "found an item that doesn't exist");
+        h.assertTrue(select(h, "@e[type=item,nbt=!{Item:{id:\"minecraft:elytra\"}}]").contains(stone), "not-elytra should find stone");
+        stone.discard();
+        h.succeed();
+    }
+
     private static final class TestData extends SavedData {
         int value = 12345;
 
@@ -326,7 +341,4 @@ public class BoostTests {
         h.succeed();
     }
 
-    private static boolean isMob(Entity e) {
-        return e instanceof Mob;
-    }
 }

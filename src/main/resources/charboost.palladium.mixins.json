@@ -9,6 +9,7 @@
     "AbilityInstanceMixin",
     "AbilityUtilMixin",
     "DefaultPowerHolderMixin",
+    "EntityPropertyHandlerMixin",
     "KubeJSPluginMixin",
     "PowerHandlerMixin",
     "PowerUtilMixin",

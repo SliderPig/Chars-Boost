@@ -22,7 +22,9 @@ public final class ConditionMemo {
             "fsang:is_mainhand", "heroes:is_mainhand", "gabeupheroes:mainhand",
             "fsang:get_energies", "fsang:get_energy_condition", "fsang:get_energy", "fsang:get_energy_range",
             "fsang:has_power_in_namespace", "gabeupheroes:has_power_in_namespace", "heroes:has_powers",
-            "fsang:power_selected", "eop:power_selected", "powerborne:not_dampened");
+            "fsang:power_selected", "eop:power_selected", "powerborne:not_dampened",
+            "fsang:block_search", "fsang:inventory_item_check", "eop:inventory_item_check", "eop:inventory_empty_check",
+            "eop:gamemode_check", "eop:biome_temperature_check");
 
     private static final Map<String, Integer> IDS = new HashMap<>();
     private static final Int2ByteOpenHashMap RESULTS = new Int2ByteOpenHashMap();

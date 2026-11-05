@@ -215,6 +215,21 @@ public final class MobAi {
         return false;
     }
 
+    /** Should this far mob's powers sit this tick out? All of its powers get the same answer in the same tick. */
+    public static boolean skipPowers(Mob mob) {
+        Opt.MOB_POWERS.seen++;
+        if (!Opt.MOB_POWERS.live()) {
+            return false;
+        }
+        int interval = interval(mob);
+        if (interval <= 1 || (Boost.tick + mob.getId()) % interval == 0) {
+            return false;
+        }
+        Opt.MOB_POWERS.skips++;
+        Opt.MOB_POWERS.savedNs += 2_000;
+        return true;
+    }
+
     /** Should this living thing skip looking for things to push this tick? Players never do. */
     public static boolean skipPush(LivingEntity entity) {
         if (!(entity instanceof Mob mob) || mob.level().isClientSide) {

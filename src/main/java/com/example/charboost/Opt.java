@@ -16,6 +16,7 @@ public enum Opt {
     NATIVE_SCRIPTS("nativeScripts", false, "the few worst script handlers run in Java with the same result, if the script hasn't changed"),
     SAVES("asyncSaves", false, "player files, advancements, stats and world data are written on another core"),
     MOB_AI("mobAi", true, "mobs far from players think less often"),
+    MOB_POWERS("mobPowers", true, "far mobs' Palladium powers tick less often"),
     MOB_PUSH("mobPush", true, "far mobs check for pushing less often"),
     PATHS("pathLimits", true, "far mobs search shorter paths, stuck mobs wait before searching again"),
     HOPPERS("hoppers", true, "idle hoppers rest a few ticks between looks"),

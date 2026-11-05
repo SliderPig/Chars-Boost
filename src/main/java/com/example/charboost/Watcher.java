@@ -27,6 +27,7 @@ public final class Watcher {
             tickStart = System.nanoTime();
             return;
         }
+        PowersHook.endOfTick();
         long now = System.nanoTime();
         sumNanos += now - tickStart;
         ticksThisSecond++;

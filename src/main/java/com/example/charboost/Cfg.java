@@ -20,6 +20,7 @@ public final class Cfg {
     private static final ForgeConfigSpec.DoubleValue BOSS_HEALTH;
     private static final ForgeConfigSpec.ConfigValue<List<? extends String>> EXEMPT_TAGS;
     private static final ForgeConfigSpec.ConfigValue<List<? extends String>> EXEMPT_MOBS;
+    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> IGNORED_POWERS;
     private static final ForgeConfigSpec.IntValue HOPPER_REST;
     private static final ForgeConfigSpec.IntValue AFK_SECONDS;
     private static final ForgeConfigSpec.ConfigValue<List<? extends String>> SLOW_SCRIPTS;
@@ -29,6 +30,7 @@ public final class Cfg {
     public static double bossHealth = 100;
     public static List<String> exemptTags = List.of();
     public static List<String> exemptMobs = List.of();
+    public static List<String> ignoredPowers = List.of();
     public static int hopperRest = 8;
     public static int afkSeconds = 60;
     public static List<String> slowScripts = List.of();
@@ -64,6 +66,8 @@ public final class Cfg {
                 .defineListAllowEmpty(List.of("exemptTags"), () -> List.of("charpowers.clone", "charpowers.held", "charboost.exempt"), o -> o instanceof String);
         EXEMPT_MOBS = b.comment("Mob ids left alone. A whole mod: \"modid:*\".")
                 .defineListAllowEmpty(List.of("exemptMobs"), () -> List.of("charpowers:*", "minecraft:warden", "minecraft:ender_dragon", "minecraft:wither", "minecraft:elder_guardian"), o -> o instanceof String);
+        IGNORED_POWERS = b.comment("Mobs holding a Palladium power are left alone, except for these. Echoes puts its effects powers on every mob there is.")
+                .defineListAllowEmpty(List.of("ignoredPowers"), () -> List.of("eop:effects/*"), o -> o instanceof String);
         b.pop();
 
         b.push("hoppers");
@@ -98,6 +102,7 @@ public final class Cfg {
         bossHealth = BOSS_HEALTH.get();
         exemptTags = copy(EXEMPT_TAGS.get());
         exemptMobs = copy(EXEMPT_MOBS.get());
+        ignoredPowers = copy(IGNORED_POWERS.get());
         hopperRest = HOPPER_REST.get();
         afkSeconds = AFK_SECONDS.get();
         slowScripts = copy(SLOW_SCRIPTS.get());

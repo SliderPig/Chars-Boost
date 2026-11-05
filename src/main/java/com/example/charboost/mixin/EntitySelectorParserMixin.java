@@ -27,7 +27,9 @@ public abstract class EntitySelectorParserMixin {
         if (selector instanceof SelectorState state) {
             int end = reader.getCursor();
             if (startPosition >= 0 && end <= reader.getString().length() && startPosition <= end) {
-                state.charboost$tags(SelectorTags.required(reader.getString().substring(startPosition, end)));
+                String text = reader.getString().substring(startPosition, end);
+                state.charboost$tags(SelectorTags.required(text));
+                state.charboost$item(SelectorTags.requiredItem(text));
             }
         }
     }

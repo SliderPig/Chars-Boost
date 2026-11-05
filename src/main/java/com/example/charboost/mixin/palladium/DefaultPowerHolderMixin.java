@@ -2,11 +2,13 @@ package com.example.charboost.mixin.palladium;
 
 import com.example.charboost.hook.Afk;
 import com.example.charboost.hook.HolderIndex;
+import com.example.charboost.hook.MobAi;
 import com.google.common.collect.ImmutableMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.threetag.palladium.power.DefaultPowerHolder;
 import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityInstance;
@@ -18,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** An AFK player's powers tick less often while the server is struggling. Also keeps a power's abilities by type. */
+/** An AFK player's powers, and far mobs' powers, tick less often while the server is struggling. Also keeps a power's abilities by type. */
 @Mixin(value = DefaultPowerHolder.class, remap = false)
 public abstract class DefaultPowerHolderMixin implements HolderIndex {
     @Unique
@@ -55,7 +57,8 @@ public abstract class DefaultPowerHolderMixin implements HolderIndex {
 
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     private void charboost$afk(CallbackInfo ci) {
-        if (Afk.skipPowers(entity, 7)) {
+        LivingEntity self = entity;
+        if (self instanceof Mob mob ? !mob.level().isClientSide && MobAi.skipPowers(mob) : Afk.skipPowers(self, 7)) {
             ci.cancel();
         }
     }

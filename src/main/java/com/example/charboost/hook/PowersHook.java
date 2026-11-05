@@ -1,5 +1,6 @@
 package com.example.charboost.hook;
 
+import com.example.charboost.Cfg;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.server.MinecraftServer;
@@ -27,12 +28,22 @@ public final class PowersHook {
         return HAS_PALLADIUM && Inner.holds(entity);
     }
 
+    public static void endOfTick() {
+        if (HAS_PALLADIUM) {
+            Inner.endOfTick();
+        }
+    }
+
     /** For /charboost mobs: which powers mobs are holding, most common first. */
     public static String powersOnMobs(MinecraftServer server) {
         return HAS_PALLADIUM ? Inner.powersOnMobs(server) : "none";
     }
 
     private static final class Inner {
+        static void endOfTick() {
+            PropertySync.flush();
+        }
+
         static String powersOnMobs(MinecraftServer server) {
             Map<String, Integer> counts = new HashMap<>();
             for (ServerLevel level : server.getAllLevels()) {
@@ -49,7 +60,23 @@ public final class PowersHook {
         }
 
         static boolean holds(LivingEntity entity) {
-            return entity instanceof PalladiumLivingEntityExtension ext && !ext.palladium$getPowerHandler().getPowerHolders().isEmpty();
+            if (entity instanceof PalladiumLivingEntityExtension ext) {
+                for (var id : ext.palladium$getPowerHandler().getPowerHolders().keySet()) {
+                    if (!ignored(id.toString())) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        static boolean ignored(String power) {
+            for (String entry : Cfg.ignoredPowers) {
+                if (entry.equals(power) || entry.endsWith("*") && power.startsWith(entry.substring(0, entry.length() - 1))) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

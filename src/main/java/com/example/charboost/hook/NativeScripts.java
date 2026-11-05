@@ -4,11 +4,7 @@ import com.example.charboost.Boost;
 import com.example.charboost.CharBoost;
 import dev.latvian.mods.kubejs.player.PlayerEventJS;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.MessageDigest;
 import java.util.HashMap;
-import java.util.HexFormat;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -18,8 +14,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.forgespi.language.IModFileInfo;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import net.threetag.palladium.power.ability.Ability;
 import net.threetag.palladium.power.ability.AbilityInstance;
@@ -56,22 +50,11 @@ public final class NativeScripts {
         if (spec == null) {
             return null;
         }
-        try {
-            IModFileInfo info = ModList.get().getModFileById(spec.mod);
-            if (info != null) {
-                Path path = info.getFile().findResource(spec.file);
-                if (path != null && Files.exists(path)) {
-                    String sha1 = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-1").digest(Files.readAllBytes(path)));
-                    if (sha1.equals(spec.sha1)) {
-                        CharBoost.LOG.info("[CharBoost] {} now runs in Java", name);
-                        return spec.code;
-                    }
-                    CharBoost.LOG.info("[CharBoost] {} has changed, leaving it as a script", name);
-                }
-            }
-        } catch (Exception e) {
-            CharBoost.LOG.warn("[CharBoost] Couldn't check {}: {}", name, e.toString());
+        if (ScriptGuard.same(spec.mod, spec.file, spec.sha1)) {
+            CharBoost.LOG.info("[CharBoost] {} now runs in Java", name);
+            return spec.code;
         }
+        CharBoost.LOG.info("[CharBoost] {} has changed, leaving it as a script", name);
         return null;
     }
 
