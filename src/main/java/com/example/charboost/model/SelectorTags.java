@@ -2,31 +2,85 @@ package com.example.charboost.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Reads which tags a selector like @e[type=x,tag=foo,tag=!bar] insists on. If nobody on the server has
- * "foo", the selector can only ever find nothing, so looking through every entity can be skipped.
- * Anything it doesn't fully understand gives no tags, which just means the normal search runs.
+ * Reads what a selector like @e[type=x,tag=foo,tag=!bar] insists on. If nobody on the server has "foo", the selector can
+ * only ever find nothing, so looking through every entity can be skipped. Anything it doesn't fully understand gives
+ * no answer, which just means the normal search runs.
  */
 public final class SelectorTags {
     private static final String[] NONE = new String[0];
+    /** nbt={Item:{id:"x"...: a dropped item of that kind. Only when the id is the first thing written, as everybody writes it. */
+    private static final Pattern ITEM_NBT = Pattern.compile("^\\{\\s*Item\\s*:\\s*\\{\\s*id\\s*:\\s*\"([^\"\\\\]+)\"");
 
     private SelectorTags() {
     }
 
     public static String[] required(String selector) {
-        if (selector == null || selector.length() < 4 || !selector.startsWith("@") || selector.charAt(2) != '[') {
+        List<String> options = options(selector);
+        if (options == null) {
             return NONE;
+        }
+        List<String> out = null;
+        for (String option : options) {
+            String tag = tagOf(option);
+            if (tag != null) {
+                if (out == null) {
+                    out = new ArrayList<>(2);
+                }
+                if (!out.contains(tag)) {
+                    out.add(tag);
+                }
+            }
+        }
+        return out == null ? NONE : out.toArray(NONE);
+    }
+
+    /**
+     * For @e[type=item,nbt={Item:{id:"x"}}]: the item id it wants, or null if the selector isn't like that.
+     * Those save the whole of every dropped item to NBT just to read its id.
+     */
+    public static String requiredItem(String selector) {
+        List<String> options = options(selector);
+        if (options == null) {
+            return null;
+        }
+        boolean itemType = false;
+        String id = null;
+        for (String option : options) {
+            int eq = option.indexOf('=');
+            if (eq < 0) {
+                return null;
+            }
+            String key = option.substring(0, eq).trim();
+            String value = option.substring(eq + 1).trim();
+            if (key.equals("type")) {
+                if (value.equals("item") || value.equals("minecraft:item")) {
+                    itemType = true;
+                }
+            } else if (key.equals("nbt") && id == null) {
+                Matcher m = ITEM_NBT.matcher(value);
+                if (m.find()) {
+                    id = m.group(1);
+                }
+            }
+        }
+        return itemType ? id : null;
+    }
+
+    /** The options between the brackets, split at the top level only. Null if the text isn't one of the game's own selectors. */
+    private static List<String> options(String selector) {
+        if (selector == null || selector.length() < 4 || !selector.startsWith("@") || selector.charAt(2) != '[') {
+            return null;
         }
         // Only the game's own selectors. A mod can add its own letters, and who knows what those do.
-        if ("aeprs".indexOf(selector.charAt(1)) < 0) {
-            return NONE;
-        }
-        if (!selector.endsWith("]")) {
-            return NONE;
+        if ("aeprs".indexOf(selector.charAt(1)) < 0 || !selector.endsWith("]")) {
+            return null;
         }
         String body = selector.substring(3, selector.length() - 1);
-        List<String> out = null;
+        List<String> out = new ArrayList<>(4);
         int depth = 0;
         boolean quoted = false;
         char quote = 0;
@@ -49,25 +103,14 @@ public final class SelectorTags {
             } else if (c == '}' || c == ']') {
                 depth--;
                 if (depth < 0) {
-                    return NONE;
+                    return null;
                 }
             } else if (c == ',' && depth == 0) {
-                String tag = tagOf(body.substring(start, i).trim());
-                if (tag != null) {
-                    if (out == null) {
-                        out = new ArrayList<>(2);
-                    }
-                    if (!out.contains(tag)) {
-                        out.add(tag);
-                    }
-                }
+                out.add(body.substring(start, i).trim());
                 start = i + 1;
             }
         }
-        if (quoted || depth != 0 || out == null) {
-            return NONE;
-        }
-        return out.toArray(NONE);
+        return quoted || depth != 0 ? null : out;
     }
 
     private static String tagOf(String option) {
