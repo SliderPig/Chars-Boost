@@ -23,7 +23,7 @@ data get entity @e[tag=cb_hunter,limit=1] Pos
 data get block 40 -60 0 Items
 summon minecraft:item 44.5 -58.9 0.5 {Item:{id:"minecraft:diamond",Count:1b},PickupDelay:0s}
 wait 2
-data get block 44 -60 0 Items
+data get block 44 -61 0 Items
 expect minecraft:diamond|diamond
 wait 13
 data get block 48 -60 0 Items
