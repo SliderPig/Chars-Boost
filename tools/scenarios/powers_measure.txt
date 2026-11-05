@@ -75,14 +75,14 @@ charboost scripts 40
 charboost functions 12
 charboost reset
 charboost level 1
-wait 15
+wait 30
 ## ON pressure 1
 tps
 wait 5
 tps
 charboost status
 charboost level 3
-wait 15
+wait 30
 ## ON pressure 3
 tps
 wait 5

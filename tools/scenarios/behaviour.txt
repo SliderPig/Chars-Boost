@@ -7,8 +7,8 @@ wait 4
 charboost status
 charboost level 3
 fill 26 -60 -3 30 -57 3 minecraft:glass hollow
-summon minecraft:villager 28 -60 2 {PersistenceRequired:1b,NoAI:1b,Tags:["cb_prey"]}
-summon minecraft:zombie 28 -60 -2 {PersistenceRequired:1b,Tags:["cb_hunter"]}
+summon minecraft:villager 28.5 -59 1.5 {PersistenceRequired:1b,NoAI:1b,Tags:["cb_prey"]}
+summon minecraft:zombie 28.5 -59 -1.5 {PersistenceRequired:1b,Tags:["cb_hunter"]}
 setblock 40 -58 0 minecraft:chest{Items:[{Slot:0b,id:"minecraft:cobblestone",Count:64b}]}
 setblock 40 -59 0 minecraft:hopper[facing=down]
 setblock 40 -60 0 minecraft:chest
@@ -16,12 +16,12 @@ setblock 44 -60 0 minecraft:hopper[facing=down]
 setblock 44 -61 0 minecraft:chest
 setblock 48 -60 0 minecraft:furnace{Items:[{Slot:0b,id:"minecraft:raw_iron",Count:8b},{Slot:1b,id:"minecraft:coal",Count:8b}]}
 wait 15
-## zombie should have found and hurt the villager by now
-data get entity @e[tag=cb_prey,limit=1] Health
-expect entity data: (?!20\.0)
+## the zombie should have found the villager by now and hurt or killed it (a villager has 20 health)
+execute unless entity @e[tag=cb_prey,nbt={Health:20.0f}]
+expect Test passed
 data get entity @e[tag=cb_hunter,limit=1] Pos
 data get block 40 -60 0 Items
-summon minecraft:item 44 -59.5 0 {Item:{id:"minecraft:diamond",Count:1b},PickupDelay:0s}
+summon minecraft:item 44.5 -58.9 0.5 {Item:{id:"minecraft:diamond",Count:1b},PickupDelay:0s}
 wait 2
 data get block 44 -60 0 Items
 expect minecraft:diamond|diamond
@@ -37,6 +37,7 @@ wait 3
 give Bot minecraft:diamond 7
 wait 1
 player Bot kill
+wait 1
 player Bot spawn at 0 -60 0
 wait 3
 data get entity Bot Inventory
