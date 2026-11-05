@@ -25,7 +25,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -108,13 +107,13 @@ public class BoostTests {
     }
 
     private static void attackCheck(GameTestHelper h) {
-        // On the ground: a mob with no AI doesn't fall.
+        // A villager as the prey: zombies drop anything else for any villager nearby. On the ground: a mob with no AI doesn't fall.
         Zombie zombie = h.spawn(EntityType.ZOMBIE, new BlockPos(1, 0, 1));
-        Cow cow = h.spawn(EntityType.COW, new BlockPos(3, 0, 1));
-        cow.setNoAi(true);
-        zombie.setTarget(cow);
-        h.succeedWhen(() -> h.assertTrue(cow.getHealth() < cow.getMaxHealth(), "the zombie hasn't hit the cow: target " + zombie.getTarget()
-                + " zombie at " + zombie.position() + " cow at " + cow.position() + " aggressive " + zombie.isAggressive()
+        Villager prey = h.spawn(EntityType.VILLAGER, new BlockPos(3, 0, 1));
+        prey.setNoAi(true);
+        zombie.setTarget(prey);
+        h.succeedWhen(() -> h.assertTrue(prey.getHealth() < prey.getMaxHealth(), "the zombie hasn't hit its prey: target " + zombie.getTarget()
+                + " zombie at " + zombie.position() + " prey at " + prey.position() + " aggressive " + zombie.isAggressive()
                 + " alive " + zombie.isAlive() + " on ground " + zombie.onGround() + " path " + zombie.getNavigation().getPath()));
     }
 
@@ -144,7 +143,7 @@ public class BoostTests {
     public static void throttledMobStillFindsATargetByItself(GameTestHelper h) {
         fullPressure();
         Zombie zombie = h.spawn(EntityType.ZOMBIE, new BlockPos(1, 2, 1));
-        Villager villager = h.spawn(EntityType.VILLAGER, new BlockPos(3, 2, 1));
+        Villager villager = h.spawn(EntityType.VILLAGER, new BlockPos(3, 0, 1));
         villager.setNoAi(true);
         h.succeedWhen(() -> h.assertTrue(zombie.getTarget() == villager, "still no target"));
     }

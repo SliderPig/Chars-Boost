@@ -90,7 +90,7 @@ public final class BoostCommand {
                 state = "ready";
                 color = ChatFormatting.GRAY;
             }
-            String hook = o.seen == 0 && o != Opt.SAVES && o != Opt.AFK ? " (not run yet)" : "";
+            String hook = o.seen == 0 && o.skips == 0 && o != Opt.SAVES && o != Opt.AFK ? " (not run yet)" : "";
             say(c, Component.literal(String.format(Locale.ROOT, "%-15s ", o.key)).withStyle(style -> style.withColor(PINK))
                     .append(Component.literal(String.format(Locale.ROOT, "%-5s ", state)).withStyle(color))
                     .append(text(String.format(Locale.ROOT, "%s skips, saved %.2f ms a tick, %s in all%s",

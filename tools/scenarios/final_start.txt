@@ -1,0 +1,9 @@
+## final jar with the real mods: clean start, commands answer, clean stop
+charboost status
+player Bot1 spawn at 0 -60 0
+wait 8
+superpower add fsang:hulk Bot1
+wait 3
+execute if entity @a[name=Bot1,palladium.power=fsang:hulk]
+charboost mobs
+charboost status

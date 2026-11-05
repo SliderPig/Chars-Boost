@@ -5,7 +5,7 @@ Works on Arclight (Forge + Bukkit) 1.20.1, and does no harm in singleplayer.
 
 ## What it does
 
-Timed on the real power mods with `/charboost scripts`, most of this server's lag turned out to be needless work: a few scripts going through every entity or every ability every tick, and Palladium redoing the same searches. So most of what this mod does is stop that work, which changes nothing about how the game plays.
+Timed on the real power mods with `/charboost scripts`, a lot of this server's lag turned out to be needless work: a few scripts going through every entity or every ability every tick, and Palladium redoing the same searches. Nearly all the gain measured below comes from stopping that work, which changes nothing about how the game plays.
 
 **Always on. These change nothing about how the game plays.**
 
@@ -44,7 +44,7 @@ Add your own with the tag `charboost.exempt` or in the config. Furnaces and othe
 
 ## Commands (ops)
 
-- `/charboost status` shows every part, whether it's on, what it skipped and what it saved, and current tick time and TPS. The "saved" figures are rough estimates.
+- `/charboost status` shows every part, whether it's on, what it skipped and what it saved, and current tick time and TPS. The "saved" figures are rough estimates: on the test below they added up to about twice the real saving. Trust the ms a tick at the top.
 - `/charboost off` / `on` is the master switch. `/charboost off mobAi` / `on mobAi` switches one part. These stick after a restart.
 - `/charboost level 0|1|2|3|auto` holds the pressure level by hand, or goes back to automatic.
 - `/charboost scripts [count]` shows what each KubeJS script, scripted ability and scripted condition costs, by file and line. spark can't split these up.
@@ -80,7 +80,24 @@ The log says which went in, in lines starting with `[CharBoost]`.
 
 ## Measured
 
-MEASURED_SECTION
+All on the real Arclight 1.20.1 jar on an 8 GB PC (`-Xmx3G`), which was also doing other work. Tick time is the "Mean tick time" from `forge tps`. Lower is better, and 50 ms is the limit for a full 20 TPS. The first 3 to 4 minutes after a start are much slower and very noisy in every run, with or without the mod, so only settled readings count.
+
+**Power mods:** Palladium, Echoes, Arrzee's, NBC Heroes, GabeUp, FSang, Powerborne, KubeJS, Power Compat and Arrzee Unlocks. 3 standing bots (Curtain fake players) with 5 big powers each, 300 mobs:
+
+| | ms a tick (settled) |
+|---|---|
+| Without the mod at all | 28 to 30 |
+| Mod in, switched off with `/charboost off` | 30 to 37 |
+| Mod on, pressure 0 (the always-on parts) | 16 to 17 |
+| Pressure 1 | 15 to 17 |
+| Pressure 3 | 13 to 14 |
+| Pressure 3, and all 3 bots counted as AFK | 8 |
+
+That's about 40% less work from the always-on parts. An earlier run of the same code gave 38 to 52 ms switched off and 20 to 26 ms on. Readings bounce: later on, the run without the mod also read 34, 44 and 70 ms with nothing changing.
+
+**3000 mobs, no power mods, 1 bot:** no measurable difference. 9 ms a tick with the mod at pressure 3, 9 ms without it. Spigot's activation range, which Arclight already has, is already doing that job. So `mobAi`, `mobPush` and `despawnChecks` barely showed up here. They're kept for crowds of mobs close to players, but don't expect much from them.
+
+**Not measured:** the real server, real players pressing keys and using powers, or lag from real play. The bots just stand there, so this says how much idle overhead went away, not what TPS the real server will reach.
 
 ## Building
 
