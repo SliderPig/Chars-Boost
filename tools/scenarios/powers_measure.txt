@@ -1,4 +1,4 @@
-## bots with powers, 300 mobs: master switch off, then on, then full pressure
+## bots with powers, 300 mobs, Power Compat last like the real server. The mod switched off and on in the same world.
 datapack disable "file/power_compat"
 wait 12
 datapack enable "file/power_compat" last
@@ -31,52 +31,68 @@ superpower add heroes:stockpile Bot3
 @mobs300.txt
 charboost off afkPlayers
 wait 70
-## warmed up. Same world, switching the mod on and off (bots count as active players, afkPlayers is off)
+## warmed up (bots count as active players: afkPlayers is off)
 charboost level 0
 charboost off
-wait 12
+wait 15
 ## OFF
 tps
-wait 6
+wait 5
 tps
 charboost on
-wait 12
+wait 15
 ## ON pressure 0
 tps
-wait 6
+wait 5
 tps
 charboost off
-wait 12
-## OFF again
+wait 15
+## OFF
 tps
-wait 6
+wait 5
+tps
+charboost on
+wait 15
+## ON pressure 0
+tps
+wait 5
+tps
+charboost off
+wait 15
+## OFF
+tps
+wait 5
 tps
 charboost on
 charboost reset
-wait 12
-## ON pressure 0 again
+wait 15
+## ON pressure 0
 tps
-wait 6
+wait 5
 tps
 charboost status
-charboost scripts 45
+charboost scripts 40
 charboost functions 12
-sample 60 stacks-on.txt
+charboost reset
 charboost level 1
-wait 12
+wait 15
 ## ON pressure 1
 tps
-wait 6
+wait 5
 tps
+charboost status
 charboost level 3
-wait 12
+wait 15
 ## ON pressure 3
 tps
-wait 6
+wait 5
 tps
+charboost status
 charboost on afkPlayers
-wait 12
-## ON pressure 3, bots count as AFK
+wait 15
+## ON pressure 3, bots now count as AFK too
+tps
+wait 5
 tps
 charboost status
 charboost mobs

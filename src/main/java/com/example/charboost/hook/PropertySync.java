@@ -38,6 +38,9 @@ public final class PropertySync {
         if (!Opt.PROPERTIES.live() || handler.getEntity().level().isClientSide || !plain(oldValue) || !plain(newValue)) {
             return false;
         }
+        if (property.getSyncType() == SyncType.NONE) {
+            return true;
+        }
         Pending pending = PENDING.computeIfAbsent(handler, h -> new Reference2ObjectOpenHashMap<>(4)).get(property);
         if (pending == null) {
             pending = new Pending();
