@@ -96,9 +96,9 @@ public final class BoostCommand {
                     .append(text(String.format(Locale.ROOT, "%s skips, saved %.2f ms a tick, %s in all%s",
                             shortCount(o.skips), o.savedMsPerTick, shortMillis(o.savedNs), hook), PLUM)));
         }
-        say(c, text(String.format(Locale.ROOT, "%d hooks in, %d files saved off the main thread (%d waiting), tag count %s, %d entities counted",
+        say(c, text(String.format(Locale.ROOT, "%d hooks in, %d files saved off the main thread (%d waiting), tag count %s, %d entities counted, %d property lists remembered",
                 MixinGate.APPLIED.size(), AsyncSaves.FILES.get(), AsyncSaves.pending(),
-                Census.working() ? "ok" : "not in use", Census.loaded), PLUM));
+                Census.working() ? "ok" : "not in use", Census.loaded, PowersHook.propertyTypes()), PLUM));
         return 1;
     }
 

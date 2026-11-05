@@ -34,6 +34,11 @@ public final class PowersHook {
         }
     }
 
+    /** For /charboost status: entity types whose property list is remembered. */
+    public static int propertyTypes() {
+        return HAS_PALLADIUM && net.minecraftforge.fml.loading.LoadingModList.get().getModFileById("kubejs") != null ? Inner.propertyTypes() : 0;
+    }
+
     /** For /charboost mobs: which powers mobs are holding, most common first. */
     public static String powersOnMobs(MinecraftServer server) {
         return HAS_PALLADIUM ? Inner.powersOnMobs(server) : "none";
@@ -42,6 +47,10 @@ public final class PowersHook {
     private static final class Inner {
         static void endOfTick() {
             PropertySync.flush();
+        }
+
+        static int propertyTypes() {
+            return PropertyCache.types();
         }
 
         static String powersOnMobs(MinecraftServer server) {

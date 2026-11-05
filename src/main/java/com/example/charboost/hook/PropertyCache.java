@@ -71,6 +71,11 @@ public final class PropertyCache {
         }
     }
 
+    /** How many entity types have their property list written down. */
+    public static int types() {
+        return ANSWERS.size();
+    }
+
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static void register(EntityPropertyHandler target, Object property, Object value) {
         target.register((PalladiumProperty) property, value);

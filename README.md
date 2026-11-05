@@ -5,19 +5,21 @@ Works on Arclight (Forge + Bukkit) 1.20.1, and does no harm in singleplayer.
 
 ## What it does
 
-Two kinds of optimisation.
+Timed on the real power mods with `/charboost scripts`, most of this server's lag turned out to be needless work: a few scripts going through every entity or every ability every tick, and Palladium redoing the same searches. So most of what this mod does is stop that work, which changes nothing about how the game plays.
 
-**Always on.** These stop wasted work and change nothing about how the game plays.
+**Always on. These change nothing about how the game plays.**
 
 | Name | What it does |
 |---|---|
 | `selectorIndex` | `@e[type=x]` looks only at that type. It used to look at every entity in every dimension. FSang's tick function alone has over 100 lines like that. |
-| `selectorTags` | `@e[tag=x]` finds nothing straight away if nobody has that tag. |
+| `selectorTags` | `@e[tag=x]` finds nothing straight away if nobody has that tag. `@e[type=item,nbt={Item:{id:"x"}}]` asks the dropped items directly first, instead of saving them all to NBT. |
 | `powerProviders` | Every tick, for every mob and player, Palladium goes through every armour slot, Curios slot and every suit set in every mod (FSang alone adds 280). Now it only does that when what's worn or the superpower list changed, with a quick re-check to catch anything else. |
-| `palladiumAbilities` | Each Palladium ability built a new little map up to twice a tick just to check its conditions. Now it keeps one. Checks like "has this entity got an intangibility ability on?", which run for every block a player touches, go straight to the answer instead of going through every ability of every power. |
-| `palladiumProperties` | `palladium.getProperty` and `setProperty` used to go through all of an entity's hundreds of properties one by one for each lookup. Now it's a direct lookup. Every new entity (even a dropped item or an arrow) ran every script's `registerProperties` to get its list. Now the first of each type does and the others copy the answer. |
-| `nativeScripts` | The few worst script handlers, timed with `/charboost scripts`, run in Java with the same result: Echoes' `property.js` (every tick, sets 7 properties on every living entity on the server), FSang's `elytra_flight.js` (every tick, for each player, goes through all their abilities in script), FSang's `properties.js:1307` (every 4 ticks, asks every entity about a property only players have). A replacement only goes in if the script file is byte for byte the one it was written against, so a mod update just falls back to the script. |
+| `palladiumAbilities` | Each ability built a new little map up to twice a tick just to check its conditions, and now keeps one. Checks like "has this entity got an intangibility ability on?", which run for every block a player touches, go straight to the answer. Scripted abilities that do nothing while off aren't called while off (234 of 267, the list comes from reading the scripts). Read-only scripted conditions aren't run twice for one entity in one tick, and two that loop a lot (`fsang:block_search`, `fsang:inventory_item_check`) run in Java. |
+| `palladiumProperties` | `palladium.getProperty` and `setProperty` went through all of an entity's hundreds of properties one by one for each lookup. Now it's a direct lookup. Every new entity (even a dropped item or an arrow) ran every script's `registerProperties`. Now the first of each type does and the others copy the answer. Property packets are held to the end of the tick, so "set to 0, count back up to 3" sends one packet, or none if nothing changed. |
+| `nativeScripts` | The worst script handlers run in Java with the same result: Echoes' `property.js` (every tick, sets 7 properties on every living entity on the server), FSang's `elytra_flight.js` (every tick, for each player, goes through all their abilities in script), FSang's `properties.js:1307` (every 4 ticks, asks every entity about a property only players have). |
 | `asyncSaves` | Player files, advancements, stats and world data are compressed and written on another core, so autosaves don't freeze the game. |
+
+Every shortcut that depends on a mod's script only goes in if that script file is byte for byte the one it was written against. If a mod updates, its own script just runs like normal.
 
 **Only while the server is struggling.** These change timing a little, so they stay asleep until ticks go over the target
 (45 ms, `targetMspt`) for 5 seconds. Then they step up one level at a time (1 to 3), and step back down once ticks stay under
@@ -25,27 +27,29 @@ Two kinds of optimisation.
 
 | Name | What it does |
 |---|---|
-| `mobAi` | Mobs far from every player run their goals, brains and item search less often (up to one tick in 16). They keep walking every tick. |
+| `mobAi` | Mobs far from every player run their goals, brains and item search less often (up to one tick in 16). They keep walking every tick, and brain memories keep counting down in real time, so villager farms keep working. |
+| `mobPowers` | Far mobs' Palladium powers tick less often. Echoes puts two powers on every mob there is. |
 | `mobPush` | Far mobs look for things to push less often. |
 | `pathLimits` | Far mobs search shorter paths. A mob that found no way somewhere waits a moment before searching for the same spot. |
-| `hoppers` | An idle hopper rests a few ticks between looks, 8 at the very most. That's a hopper's own pause between items, so working hoppers keep full speed, and spigot.yml's hopper settings do nothing on Arclight anyway. |
+| `hoppers` | An idle hopper rests a few ticks between looks, 8 at the very most. That's a hopper's own pause between items, so working hoppers keep full speed. (spigot.yml's hopper settings do nothing on Arclight for this.) |
 | `despawnChecks` | Mobs ask "should I despawn?" less often, with the chance raised to match. |
 | `afkPlayers` | A player who hasn't moved, looked round, clicked or used a power for 60 seconds has their tick scripts and powers run less often. |
-| `slowScripts` | KubeJS tick scripts on the slow list run less often. |
+| `slowScripts` | KubeJS tick scripts on the slow list run less often, picked by reading each one: bookkeeping that catches up by itself. The worst side effect is skill XP from playtime coming in a bit slower while the server is overloaded. |
 | `slowFunctions` | Datapack tick functions on the slow list run less often. Empty by default. |
 
 **Left alone by the mob throttle:** players, mobs with a target or just hit, bosses (100+ max health or in the Forge boss tag),
-tamed or named mobs, raiders, mobs being ridden or on a lead, mobs in water or lava, villagers trading, anything holding a Palladium power,
-Char's Powers clones and pets (tags `charpowers.clone`, `charpowers.held`, and the whole `charpowers` mod).
+tamed or named mobs, raiders, mobs being ridden or on a lead, mobs in water or lava, villagers trading, anything holding a Palladium power
+(other than Echoes' `eop:effects/*`, which every mob has), Char's Powers clones and pets (tags `charpowers.clone`, `charpowers.held`, and the whole `charpowers` mod).
 Add your own with the tag `charboost.exempt` or in the config. Furnaces and other block entities are never slowed.
 
 ## Commands (ops)
 
-- `/charboost status` shows every part, whether it's on, what it skipped and what it saved, and current tick time and TPS.
+- `/charboost status` shows every part, whether it's on, what it skipped and what it saved, and current tick time and TPS. The "saved" figures are rough estimates.
 - `/charboost off` / `on` is the master switch. `/charboost off mobAi` / `on mobAi` switches one part. These stick after a restart.
 - `/charboost level 0|1|2|3|auto` holds the pressure level by hand, or goes back to automatic.
-- `/charboost scripts [count]` shows what each KubeJS script costs, by file and line. spark can't split these up.
+- `/charboost scripts [count]` shows what each KubeJS script, scripted ability and scripted condition costs, by file and line. spark can't split these up.
 - `/charboost functions [count]` shows what each datapack function costs.
+- `/charboost mobs` shows how often mobs are thinking, why any are left alone, and which powers they hold.
 - `/charboost scripts reset`, `/charboost functions reset`, `/charboost reset` clear the numbers.
 
 ## Config
@@ -74,6 +78,10 @@ Canary crashed this server because it patches a class Arclight patches too. Befo
 the Arclight jar's own mixin lists. Every hook is optional (`required: false`, `defaultRequire: 0`), so a clash turns off that one hook instead of crashing.
 The log says which went in, in lines starting with `[CharBoost]`.
 
+## Measured
+
+MEASURED_SECTION
+
 ## Building
 
 `gradlew build`. Needs these in `libs/` to compile (none are needed to run): Palladium 4.5.9, Palladium Core 1.0.1, KubeJS 2001.6.5-build.26, Rhino 2001.2.3-build.10, all from the Powers profile.
@@ -81,3 +89,4 @@ The log says which went in, in lines starting with `[CharBoost]`.
 - `gradlew test`: pure rules (tuner, activation tiers, selector reading, tag counting, throttle fairness).
 - `gradlew runGameTestServer -Psmoke`: real headless server checks at full pressure, in `src/smoke`. Rebuild without `-Psmoke` before installing.
 - `python tools/run_arclight.py`: the real Arclight jar in a throwaway folder, fed console commands from `tools/scenarios/`.
+- `python tools/make_idle_abilities.py`: re-reads the mods' scripts for the idle ability list after a power mod updates.
