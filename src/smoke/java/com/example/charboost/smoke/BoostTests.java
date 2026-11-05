@@ -107,14 +107,36 @@ public class BoostTests {
         });
     }
 
-    @GameTest(template = "empty", timeoutTicks = 200)
-    public static void throttledMobWithATargetStillAttacks(GameTestHelper h) {
-        fullPressure();
+    private static void attackCheck(GameTestHelper h) {
         Zombie zombie = h.spawn(EntityType.ZOMBIE, new BlockPos(1, 2, 1));
         Cow cow = h.spawn(EntityType.COW, new BlockPos(3, 2, 1));
         cow.setNoAi(true);
         zombie.setTarget(cow);
-        h.succeedWhen(() -> h.assertTrue(cow.getHealth() < cow.getMaxHealth(), "the zombie hasn't hit the cow"));
+        h.succeedWhen(() -> h.assertTrue(cow.getHealth() < cow.getMaxHealth(), "the zombie hasn't hit the cow: target " + zombie.getTarget()
+                + " zombie at " + zombie.position() + " cow at " + cow.position() + " aggressive " + zombie.isAggressive()
+                + " alive " + zombie.isAlive() + " on ground " + zombie.onGround() + " path " + zombie.getNavigation().getPath()));
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 300)
+    public static void throttledMobWithATargetStillAttacks(GameTestHelper h) {
+        fullPressure();
+        attackCheck(h);
+    }
+
+    @net.minecraft.gametest.framework.BeforeBatch(batch = "plain")
+    public static void switchOff(net.minecraft.server.level.ServerLevel level) {
+        Boost.enabled = false;
+    }
+
+    @net.minecraft.gametest.framework.AfterBatch(batch = "plain")
+    public static void switchOn(net.minecraft.server.level.ServerLevel level) {
+        Boost.enabled = true;
+    }
+
+    /** The same check with the mod switched off, to tell a fault in the check from a fault in the mod. */
+    @GameTest(template = "empty", timeoutTicks = 300, batch = "plain")
+    public static void plainGameMobWithATargetAttacks(GameTestHelper h) {
+        attackCheck(h);
     }
 
     @GameTest(template = "empty", timeoutTicks = 800)
@@ -131,7 +153,8 @@ public class BoostTests {
         fullPressure();
         Zombie zombie = h.spawn(EntityType.ZOMBIE, new BlockPos(0, 2, 0));
         BlockPos goal = h.absolutePos(new BlockPos(4, 2, 4));
-        zombie.getNavigation().moveTo(goal.getX() + 0.5, goal.getY(), goal.getZ() + 0.5, 1.0);
+        // On the first tick it isn't on the ground yet and the game refuses to plan a path.
+        h.runAfterDelay(30, () -> zombie.getNavigation().moveTo(goal.getX() + 0.5, goal.getY(), goal.getZ() + 0.5, 1.0));
         h.succeedWhen(() -> h.assertTrue(zombie.blockPosition().distManhattan(goal) <= 2, "hasn't arrived, at " + zombie.blockPosition()));
     }
 
