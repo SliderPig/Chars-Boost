@@ -93,7 +93,7 @@ public abstract class PowerHandlerMixin {
         long now = Boost.tick;
         boolean timeUp = now >= charboost$nextFull;
         // Other mobs only look now and then. A mob doesn't need its new armour's power this very tick.
-        if (!player && !timeUp && (now + self.getId()) % 10 != 0) {
+        if (!player && !timeUp && tickRemoveBuffer.isEmpty() && (now + self.getId()) % 10 != 0) {
             return false;
         }
         boolean changed = timeUp || !tickRemoveBuffer.isEmpty() || charboost$generation != PowersHook.generation;

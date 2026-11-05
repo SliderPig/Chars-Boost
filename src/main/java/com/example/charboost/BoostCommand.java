@@ -115,7 +115,8 @@ public final class BoostCommand {
         if (!on) {
             Boost.level = 0;
         }
-        say(c, text("Char's Boost is " + (on ? "on" : "off") + ".", PINK));
+        String extra = on && MixinGate.APPLIED.isEmpty() ? " It was off when the server started, so restart for it to take effect." : "";
+        say(c, text("Char's Boost is " + (on ? "on" : "off") + "." + extra, PINK));
         return 1;
     }
 

@@ -7,7 +7,6 @@ import dev.latvian.mods.kubejs.event.EventExit;
 import dev.latvian.mods.kubejs.event.EventHandlerContainer;
 import dev.latvian.mods.kubejs.event.EventJS;
 import dev.latvian.mods.kubejs.event.EventResult;
-import dev.latvian.mods.kubejs.event.IEventHandler;
 import dev.latvian.mods.rhino.WrappedException;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,9 +17,6 @@ import org.spongepowered.asm.mixin.Unique;
 /** Runs a KubeJS event's handlers the same way as always, with a stopwatch round each one. */
 @Mixin(value = EventHandlerContainer.class, remap = false)
 public abstract class EventHandlerContainerMixin implements ScriptEntryHolder {
-    @Shadow
-    @Final
-    public IEventHandler handler;
     @Shadow
     @Final
     public String source;
@@ -35,14 +31,19 @@ public abstract class EventHandlerContainerMixin implements ScriptEntryHolder {
     @Unique
     private boolean charboost$marked;
 
-    @Unique
-    private Scripts.Entry charboost$entry() {
+    @Override
+    public Scripts.Entry charboost$entry() {
         Scripts.Entry e = charboost$entry;
         if (e == null) {
             e = Scripts.entry(source, line);
             charboost$entry = e;
         }
         return e;
+    }
+
+    @Override
+    public EventHandlerContainer charboost$next() {
+        return child;
     }
 
     @Override
@@ -63,9 +64,10 @@ public abstract class EventHandlerContainerMixin implements ScriptEntryHolder {
      */
     @Overwrite
     public EventResult handle(EventJS event, EventExceptionHandler exh) throws EventExit {
-        EventHandlerContainerMixin itr = this;
+        EventHandlerContainer itr = (EventHandlerContainer) (Object) this;
         do {
-            Scripts.Entry entry = itr.charboost$entry();
+            ScriptEntryHolder holder = (ScriptEntryHolder) itr;
+            Scripts.Entry entry = holder.charboost$entry();
             if (!Scripts.skip(entry)) {
                 long start = System.nanoTime();
                 try {
@@ -80,14 +82,14 @@ public abstract class EventHandlerContainerMixin implements ScriptEntryHolder {
                     if (throwable instanceof EventExit exit) {
                         throw exit;
                     }
-                    if (exh == null || (throwable = exh.handle(event, (EventHandlerContainer) (Object) itr, throwable)) != null) {
+                    if (exh == null || (throwable = exh.handle(event, itr, throwable)) != null) {
                         throw EventResult.Type.ERROR.exit(throwable);
                     }
                 } finally {
                     entry.cost.add(System.nanoTime() - start);
                 }
             }
-            itr = (EventHandlerContainerMixin) (Object) itr.child;
+            itr = holder.charboost$next();
         } while (itr != null);
         return EventResult.PASS;
     }

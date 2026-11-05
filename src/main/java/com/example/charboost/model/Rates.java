@@ -35,17 +35,4 @@ public final class Rates {
             default -> 4;
         };
     }
-
-    /** A locked ability looks at its unlock conditions one tick in this many. */
-    public static int lockedAbilityEvery(int level, boolean afk) {
-        if (afk) {
-            return level == 0 ? 1 : 8;
-        }
-        return switch (level) {
-            case 0 -> 1;
-            case 1 -> 2;
-            case 2 -> 3;
-            default -> 4;
-        };
-    }
 }

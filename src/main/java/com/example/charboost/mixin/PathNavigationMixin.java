@@ -27,6 +27,8 @@ public abstract class PathNavigationMixin {
     @Shadow
     @Final
     protected Mob mob;
+    @Shadow
+    protected Path path;
 
     @Unique
     private int charboost$failedTargets;
@@ -39,7 +41,10 @@ public abstract class PathNavigationMixin {
         if (!Opt.PATHS.live() || targets.isEmpty()) {
             return;
         }
-        // Only when the mob isn't already walking a good path there, which the game answers by itself.
+        // Still walking a path: the game answers that by itself, and a "no" here would stop the mob dead.
+        if (path != null && !path.isDone()) {
+            return;
+        }
         if (Boost.tick - charboost$failedAt < AiRules.pathRetryTicks(Boost.level) && targets.hashCode() == charboost$failedTargets) {
             Opt.PATHS.skips++;
             Opt.PATHS.savedNs += 60_000;

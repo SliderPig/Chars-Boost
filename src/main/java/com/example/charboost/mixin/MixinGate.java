@@ -46,7 +46,10 @@ public class MixinGate implements IMixinConfigPlugin {
         put("SavedDataMixin", "asyncSaves");
         put("palladium.PowerHandlerMixin", "powerProviders");
         put("palladium.PowerUtilMixin", "powerProviders");
-        put("palladium.AbilityInstanceMixin", "powerLocked", "afkPlayers");
+        put("palladium.PropertyManagerMixin", "palladiumProperties");
+        put("palladium.RegisterPropertyEventMixin", "palladiumProperties");
+        put("palladium.KubeJSPluginMixin", "palladiumProperties");
+        put("palladium.AbilityInstanceMixin", "abilityContext", "afkPlayers");
         put("palladium.DefaultPowerHolderMixin", "afkPlayers");
         put("kubejs.KubeJSPlayerEventHandlerMixin", "afkPlayers");
     }
@@ -95,7 +98,8 @@ public class MixinGate implements IMixinConfigPlugin {
         if (name.startsWith("palladium.") && (mods == null || mods.getModFileById("palladium") == null)) {
             return false;
         }
-        if (name.startsWith("kubejs.") && (mods == null || mods.getModFileById("kubejs") == null)) {
+        if ((name.startsWith("kubejs.") || name.equals("palladium.KubeJSPluginMixin") || name.equals("palladium.RegisterPropertyEventMixin"))
+                && (mods == null || mods.getModFileById("kubejs") == null)) {
             return false;
         }
         String[] switches = SWITCHES.get(name);

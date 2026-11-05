@@ -36,16 +36,16 @@ public abstract class AbilityInstanceMixin {
         if (conditions.isEmpty()) {
             return true;
         }
-        Opt.POWER_LOCKED.seen++;
+        Opt.ABILITY_CONTEXT.seen++;
         DataContext context = charboost$context;
         Object level = entity.level();
-        if (context == null || !Opt.POWER_LOCKED.live() || charboost$contextLevel != level || context.getEntity() != entity) {
+        if (context == null || !Opt.ABILITY_CONTEXT.live() || charboost$contextLevel != level || context.getEntity() != entity) {
             context = DataContext.forAbility(entity, (AbilityInstance) (Object) this);
             charboost$context = context;
             charboost$contextLevel = level;
         } else {
-            Opt.POWER_LOCKED.skips++;
-            Opt.POWER_LOCKED.savedNs += 150;
+            Opt.ABILITY_CONTEXT.skips++;
+            Opt.ABILITY_CONTEXT.savedNs += 150;
         }
         return ConditionSerializer.checkConditions(conditions, context);
     }

@@ -54,6 +54,7 @@ test {
 // gradlew runGameTestServer -Psmoke: real headless game, runs src/smoke. Never part of the jar.
 if (project.hasProperty('smoke')) {
     sourceSets.main.java.srcDir 'src/smoke/java'
+    sourceSets.main.resources.srcDir 'src/smoke/resources'
     minecraft.runs {
         gameTestServer {
             workingDirectory project.file('run-smoke')

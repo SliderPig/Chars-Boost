@@ -1,0 +1,32 @@
+## one bot, 3000 mobs: master switch off, then on, then full pressure
+gamerule doMobSpawning false
+gamerule doDaylightCycle false
+time set day
+player Bot spawn at 0 -60 0
+wait 4
+@mobs3000.txt
+wait 30
+charboost level 0
+charboost off
+wait 20
+## master switch off
+tps
+wait 10
+tps
+charboost on
+wait 20
+## always-on parts only
+tps
+wait 10
+tps
+charboost level 1
+wait 20
+## pressure 1
+tps
+charboost level 3
+wait 20
+## pressure 3
+tps
+wait 10
+tps
+charboost status

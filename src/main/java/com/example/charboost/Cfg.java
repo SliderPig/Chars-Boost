@@ -108,10 +108,6 @@ public final class Cfg {
         return new ArrayList<>(in);
     }
 
-    public static double target() {
-        return TARGET.get();
-    }
-
     /** Saves a switch from /charboost on|off so it survives a restart. */
     public static void save(Opt o) {
         ForgeConfigSpec.BooleanValue v = SWITCHES.get(o);

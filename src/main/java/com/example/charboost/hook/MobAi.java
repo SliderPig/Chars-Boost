@@ -206,7 +206,7 @@ public final class MobAi {
 
     /** Should this living thing skip looking for things to push this tick? Players never do. */
     public static boolean skipPush(LivingEntity entity) {
-        if (!(entity instanceof Mob mob)) {
+        if (!(entity instanceof Mob mob) || mob.level().isClientSide) {
             return false;
         }
         Opt.MOB_PUSH.seen++;

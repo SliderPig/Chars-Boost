@@ -8,8 +8,11 @@
   "mixins": [
     "AbilityInstanceMixin",
     "DefaultPowerHolderMixin",
+    "KubeJSPluginMixin",
     "PowerHandlerMixin",
-    "PowerUtilMixin"
+    "PowerUtilMixin",
+    "PropertyManagerMixin",
+    "RegisterPropertyEventMixin"
   ],
   "injectors": { "defaultRequire": 0 }
 }

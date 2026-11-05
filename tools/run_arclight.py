@@ -17,6 +17,7 @@ A script is a list of lines:
 The server is stopped with "stop" at the end and killed if it does not close.
 """
 import argparse
+import atexit
 import os
 import queue
 import re
@@ -29,7 +30,7 @@ import time
 JAR = r"C:\Users\black\Downloads\arclight-forge-1.20.1-1.0.6-SNAPSHOT-5dc8683.jar"
 JAVA = r"C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot\bin\java.exe"
 
-JCMD = r"C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspotin\jcmd.exe"
+JCMD = JAVA.replace("java.exe", "jcmd.exe")
 PROFILE = os.path.expandvars(r"%APPDATA%\ModrinthApp\profiles\Powers\mods")
 
 PROPS = """online-mode=false
@@ -49,7 +50,7 @@ network-compression-threshold=256
 difficulty=hard
 """
 
-DEFAULT_SHOW = r"\[CHARBOOST\]|Overall|Mixin apply failed|Done \(|\[charboost\]|Caused by|FATAL|Exception in"
+DEFAULT_SHOW = r"\[CHARBOOST\]|\[CharBoost\] \d+ hooks|Overall|Mixin apply failed|Done \(|Caused by|FATAL|Exception in|ms/t |ms a tick|hooks in|has the following|No entity was found|Unknown or incomplete|Mixin.*(error|fail)"
 
 
 BUCKETS = [
@@ -204,6 +205,18 @@ def main():
             except queue.Empty:
                 return
 
+    def stop_server():
+        send("stop")
+        try:
+            proc.wait(timeout=max(min(60, left()), 10))
+        except subprocess.TimeoutExpired:
+            print("server would not stop, killing", flush=True)
+            subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)], capture_output=True)
+            proc.wait(timeout=20)
+        print("server exit code", proc.returncode, "after %.0f s" % (time.time() - start), flush=True)
+
+    atexit.register(lambda: proc.poll() is None and stop_server())
+
     ok = wait_for("Done (", a.limit - 60)
     if not ok:
         print("SERVER DID NOT FINISH STARTING", flush=True)
@@ -261,14 +274,7 @@ def main():
                 print(("EXPECT OK: " + hit.rstrip()[-160:]) if hit else ("EXPECT FAILED: " + line[7:]), flush=True)
             else:
                 send(line)
-    send("stop")
-    try:
-        proc.wait(timeout=max(min(60, left()), 10))
-    except subprocess.TimeoutExpired:
-        print("server would not stop, killing", flush=True)
-        subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)], capture_output=True)
-        proc.wait(timeout=20)
-    print("server exit code", proc.returncode, "after %.0f s" % (time.time() - start), flush=True)
+    stop_server()
     all_log.close()
 
 

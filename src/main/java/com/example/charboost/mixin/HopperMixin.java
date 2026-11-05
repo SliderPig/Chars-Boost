@@ -27,14 +27,9 @@ public abstract class HopperMixin {
     private static final RollingCost charboost$cost = new RollingCost();
     @Unique
     private static long charboost$started;
-    @Unique
-    private static final double charboost$NEAR = 32 * 32;
 
     @Shadow
     private int cooldownTime;
-
-    @Shadow
-    public abstract void setCooldown(int cooldown);
 
     @Inject(method = "pushItemsTick", at = @At("HEAD"))
     private static void charboost$head(Level level, BlockPos pos, BlockState state, HopperBlockEntity hopper, CallbackInfo ci) {
@@ -49,8 +44,7 @@ public abstract class HopperMixin {
         if (!Opt.HOPPERS.live() || level.isClientSide) {
             return;
         }
-        HopperMixin self = (HopperMixin) (Object) hopper;
-        if (self.cooldownTime > 0) {
+        if (((HopperMixin) (Object) hopper).cooldownTime > 0) {
             // It moved something, or it's still in its pause.
             return;
         }
@@ -58,7 +52,7 @@ public abstract class HopperMixin {
         boolean near = level.hasNearbyAlivePlayer(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 32);
         int rest = Rates.hopperRest(Boost.level, near, Cfg.hopperRest);
         if (rest > 0) {
-            self.setCooldown(rest);
+            hopper.setCooldown(rest);
             Opt.HOPPERS.skips++;
             Opt.HOPPERS.savedNs += (long) (charboost$cost.average() * (rest - 1));
         }

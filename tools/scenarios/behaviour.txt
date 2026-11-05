@@ -1,0 +1,35 @@
+## Does everything still work at full pressure? Bot at 0,0. Pen and hoppers 28 blocks away (inside Spigot's activation range, throttled by us).
+gamerule doMobSpawning false
+gamerule doDaylightCycle false
+time set day
+player Bot spawn at 0 -60 0
+wait 4
+charboost status
+charboost level 3
+fill 26 -60 -3 30 -57 3 minecraft:glass hollow
+summon minecraft:villager 28 -60 2 {PersistenceRequired:1b,NoAI:1b,Tags:["cb_prey"]}
+summon minecraft:zombie 28 -60 -2 {PersistenceRequired:1b,Tags:["cb_hunter"]}
+setblock 40 -58 0 minecraft:chest{Items:[{Slot:0b,id:"minecraft:cobblestone",Count:64b}]}
+setblock 40 -59 0 minecraft:hopper[facing=down]
+setblock 40 -60 0 minecraft:chest
+setblock 44 -60 0 minecraft:hopper[facing=down]
+setblock 44 -61 0 minecraft:chest
+setblock 48 -60 0 minecraft:furnace{Items:[{Slot:0b,id:"minecraft:raw_iron",Count:8b},{Slot:1b,id:"minecraft:coal",Count:8b}]}
+wait 15
+## zombie should have found and hurt the villager by now
+data get entity @e[tag=cb_prey,limit=1] Health
+expect entity data: (?!20\.0)
+data get entity @e[tag=cb_hunter,limit=1] Pos
+data get block 40 -60 0 Items
+summon minecraft:item 44 -59.5 0 {Item:{id:"minecraft:diamond",Count:1b},PickupDelay:0s}
+wait 2
+data get block 44 -60 0 Items
+expect minecraft:diamond|diamond
+wait 13
+data get block 48 -60 0 Items
+charboost status
+charboost functions
+charboost scripts
+charboost level auto
+save-all
+wait 3
