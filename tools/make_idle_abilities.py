@@ -15,7 +15,7 @@ import sys
 import zipfile
 
 PROFILE = os.path.expandvars(r"%APPDATA%\ModrinthApp\profiles\Powers\mods")
-DOWNLOADS = r"C:\Users\black\Downloads"
+DOWNLOADS = os.path.join(os.path.expanduser('~'), 'Downloads')
 # The server runs patched copies of these two.
 JARS = [
     os.path.join(DOWNLOADS, "FSang18's Heroes v12.5.7 (server fix).jar"),

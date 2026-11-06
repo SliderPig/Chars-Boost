@@ -27,7 +27,7 @@ import sys
 import threading
 import time
 
-JAR = r"C:\Users\black\Downloads\arclight-forge-1.20.1-1.0.6-SNAPSHOT-5dc8683.jar"
+JAR = os.path.join(os.path.expanduser('~'), 'Downloads', 'arclight-forge-1.20.1-1.0.6-SNAPSHOT-5dc8683.jar')
 JAVA = r"C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot\bin\java.exe"
 
 JCMD = JAVA.replace("java.exe", "jcmd.exe")
@@ -142,7 +142,7 @@ def main():
             shutil.copy(m, mods)
     if a.mods_list:
         for name in open(a.mods_list, encoding="utf-8"):
-            name = name.strip()
+            name = os.path.expanduser(name.strip())
             if not name or name.startswith("#"):
                 continue
             src = name if os.path.isabs(name) else os.path.join(PROFILE, name)

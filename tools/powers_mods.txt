@@ -20,5 +20,5 @@ player-animation-lib-forge-1.0.2-rc1+1.20.jar
 curtain-mc1.20.1-1.3.2.jar
 xptable-1.0.jar
 {C} abilitypicker-1.5.jar
-C:\Users\black\Downloads\Echoes-of-Power-3.3.0 (server fix).jar
-C:\Users\black\Downloads\FSang18's Heroes v12.5.7 (server fix).jar
+~\Downloads\Echoes-of-Power-3.3.0 (server fix).jar
+~\Downloads\FSang18's Heroes v12.5.7 (server fix).jar
